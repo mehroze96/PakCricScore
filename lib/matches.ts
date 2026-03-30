@@ -15,6 +15,7 @@ import type {
 } from "@/lib/types";
 
 const PAKISTAN_PATTERN = /\bpakistan\b|\bpak\b/i;
+const PSL_PATTERN = /\bpakistan super league\b|\bpsl\b/i;
 
 /* ─── Shared helpers ─────────────────────────────────────────────── */
 
@@ -148,7 +149,11 @@ export function isPakistanMatch(match: RawCricketMatch) {
     return true;
   }
 
-  return PAKISTAN_PATTERN.test(match.name ?? "");
+  return (
+    PAKISTAN_PATTERN.test(match.name ?? "") ||
+    PSL_PATTERN.test(match.seriesName ?? "") ||
+    PSL_PATTERN.test(match.name ?? "")
+  );
 }
 
 export function filterPakistanMatches(payload: ApiResponseShape) {

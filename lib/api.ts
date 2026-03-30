@@ -14,6 +14,7 @@ import type {
   Match,
   MatchStatus,
   RawMatchInfoResponse,
+  RawMatchDetailData,
   RawScorecardResponse,
 } from "@/lib/types";
 
@@ -155,6 +156,10 @@ function getMatchCacheWindow(status: MatchStatus): CacheWindow {
   return CACHE_WINDOWS.live;
 }
 
+function normalizeScorecardInnings(matchData?: RawMatchDetailData | null) {
+  return (matchData?.scorecard ?? []).map(normalizeInnings);
+}
+
 const getCurrentMatchesFeedCached = unstable_cache(
   async () =>
     fetchCricketJson<ApiResponseShape>(
@@ -219,14 +224,25 @@ const getMatchByIdCached = unstable_cache(
 
 const getScorecardCached = unstable_cache(
   async (id: string): Promise<ScorecardPayload> => {
-    const payload = await fetchCricketJson<RawScorecardResponse>(
-      "/match_scorecard",
-      { id },
-      CACHE_WINDOWS.live
-    );
+    const [scorecardPayload, matchInfoPayload] = await Promise.all([
+      fetchCricketJson<RawScorecardResponse>(
+        "/match_scorecard",
+        { id },
+        CACHE_WINDOWS.live
+      ),
+      fetchCricketJson<RawMatchInfoResponse>(
+        "/match_info",
+        { id },
+        CACHE_WINDOWS.live
+      ),
+    ]);
 
-    const innings = (payload.data?.scorecard ?? []).map(normalizeInnings);
-    const match = payload.data ? normalizeMatch(payload.data) : null;
+    const scorecardInnings = normalizeScorecardInnings(scorecardPayload.data);
+    const matchInfoInnings = normalizeScorecardInnings(matchInfoPayload.data);
+    const innings =
+      scorecardInnings.length > 0 ? scorecardInnings : matchInfoInnings;
+    const matchSource = scorecardPayload.data ?? matchInfoPayload.data ?? null;
+    const match = matchSource ? normalizeMatch(matchSource) : null;
 
     return {
       innings,

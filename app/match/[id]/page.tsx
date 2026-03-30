@@ -25,7 +25,9 @@ export default async function MatchDetailRoute({ params }: MatchDetailRouteProps
 
   return (
     <MatchDetailPage
-      hasInitialScorecardPayload={Boolean(scorecardResult.payload || scorecardResult.error)}
+      hasInitialScorecardPayload={Boolean(
+        scorecardResult.error || (scorecardResult.payload?.innings.length ?? 0) > 0
+      )}
       id={id}
       initialInnings={scorecardResult.payload?.innings ?? []}
       initialMatch={matchResult.payload?.match ?? null}
