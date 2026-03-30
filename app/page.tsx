@@ -1,7 +1,30 @@
+import { getCurrentPakistanMatches, getUpcomingPakistanMatches } from "@/lib/api";
 import { Header } from "@/components/header";
 import { MatchesBoard } from "@/components/matches-board";
+import { UpcomingSection } from "@/components/upcoming-section";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [liveResult, upcomingResult] = await Promise.all([
+    getCurrentPakistanMatches()
+      .then((payload) => ({ payload, error: null }))
+      .catch((error) => ({
+        payload: null,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Unable to fetch Pakistan matches right now.",
+      })),
+    getUpcomingPakistanMatches()
+      .then((payload) => ({ payload, error: null }))
+      .catch((error) => ({
+        payload: null,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Unable to fetch upcoming Pakistan matches.",
+      })),
+  ]);
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -12,8 +35,18 @@ export default function HomePage() {
           paddingRight: "max(1rem, env(safe-area-inset-right))",
         }}
       >
-        <div className="mx-auto max-w-7xl">
-          <MatchesBoard />
+        <div className="mx-auto max-w-7xl space-y-10">
+          <MatchesBoard
+            initialError={liveResult.error}
+            initialFetchedAt={liveResult.payload?.fetchedAt ?? null}
+            initialMatches={liveResult.payload?.matches ?? []}
+          />
+          <div className="border-t border-border/40" />
+          <UpcomingSection
+            initialError={upcomingResult.error}
+            initialFetchedAt={upcomingResult.payload?.fetchedAt ?? null}
+            initialMatches={upcomingResult.payload?.matches ?? []}
+          />
         </div>
       </main>
       <footer

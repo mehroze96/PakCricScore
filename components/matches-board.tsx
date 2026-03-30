@@ -20,6 +20,17 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "completed", label: "Completed" },
 ];
 
+function formatFetchedAt(value: string | null) {
+  if (!value) return null;
+
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  }).format(new Date(value));
+}
+
 /* ─── Skeleton card matching the real card shape ─────────────────── */
 function MatchCardSkeleton() {
   return (
@@ -143,15 +154,26 @@ function CountdownRing({ seconds, total }: { seconds: number; total: number }) {
   );
 }
 
+interface MatchesBoardProps {
+  initialFetchedAt?: string | null;
+  initialMatches?: Match[];
+  initialError?: string | null;
+}
+
 /* ─── Main board ─────────────────────────────────────────────────── */
-export function MatchesBoard() {
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [loading, setLoading] = useState(true);
+export function MatchesBoard({
+  initialFetchedAt = null,
+  initialMatches = [],
+  initialError = null,
+}: MatchesBoardProps) {
+  const hasInitialPayload = initialFetchedAt !== null || initialError !== null;
+  const [matches, setMatches] = useState<Match[]>(initialMatches);
+  const [loading, setLoading] = useState(!hasInitialPayload);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialError);
   const [activeTab, setActiveTab] = useState<Tab>("all");
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
-  const [fetchedAt, setFetchedAt] = useState<string | null>(null);
+  const [fetchedAt, setFetchedAt] = useState<string | null>(formatFetchedAt(initialFetchedAt));
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const loadMatches = useCallback(async (isManualRefresh = false) => {
@@ -163,22 +185,13 @@ export function MatchesBoard() {
 
     try {
       setError(null);
-      const res = await fetch("/api/matches", { cache: "no-store" });
+      const res = await fetch("/api/matches");
       const data = await res.json() as { matches?: Match[]; error?: string; fetchedAt?: string };
 
       if (!res.ok) throw new Error(data.error ?? "Failed to load scores.");
 
       setMatches(data.matches ?? []);
-      if (data.fetchedAt) {
-        setFetchedAt(
-          new Intl.DateTimeFormat("en-US", {
-            hour: "numeric",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: true,
-          }).format(new Date(data.fetchedAt))
-        );
-      }
+      setFetchedAt(formatFetchedAt(data.fetchedAt ?? null));
       setCountdown(REFRESH_INTERVAL);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not fetch Pakistan matches.");
@@ -190,8 +203,17 @@ export function MatchesBoard() {
 
   // Initial fetch
   useEffect(() => {
-    void loadMatches();
-  }, [loadMatches]);
+    if (!hasInitialPayload) {
+      void loadMatches();
+    }
+  }, [hasInitialPayload, loadMatches]);
+
+  useEffect(() => {
+    setMatches(initialMatches);
+    setError(initialError);
+    setFetchedAt(formatFetchedAt(initialFetchedAt));
+    setLoading(!hasInitialPayload);
+  }, [hasInitialPayload, initialError, initialFetchedAt, initialMatches]);
 
   // Countdown + auto-refresh
   useEffect(() => {

@@ -1,71 +1,64 @@
-import type { ApiResponseShape, Match, MatchStatus, RawCricketMatch, RawScoreEntry } from "@/lib/types";
+import type {
+  ApiResponseShape,
+  BatsmanScore,
+  BowlerFigure,
+  ExtrasBreakdown,
+  InningsScore,
+  Match,
+  MatchDetail,
+  MatchStatus,
+  RawCricketMatch,
+  RawInnings,
+  RawMatchDetailData,
+  RawPlayerRef,
+  RawScoreEntry,
+} from "@/lib/types";
 
 const PAKISTAN_PATTERN = /\bpakistan\b|\bpak\b/i;
+
+/* ─── Shared helpers ─────────────────────────────────────────────── */
 
 function cleanLabel(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+function extractPlayerName(ref: RawPlayerRef | undefined): string {
+  if (!ref) return "Unknown";
+  if (typeof ref === "string") return ref;
+  return ref.name ?? "Unknown";
+}
+
 function formatRunRate(runs?: number, overs?: number) {
-  if (typeof runs !== "number" || typeof overs !== "number") {
+  if (typeof runs !== "number" || typeof overs !== "number" || overs <= 0) {
     return undefined;
   }
-
-  if (overs <= 0) {
-    return undefined;
-  }
-
   return (runs / overs).toFixed(2);
 }
 
 function formatScore(entry?: RawScoreEntry) {
-  if (!entry || typeof entry.r !== "number") {
-    return undefined;
-  }
-
-  if (typeof entry.w === "number") {
-    return `${entry.r}/${entry.w}`;
-  }
-
-  return `${entry.r}`;
+  if (!entry || typeof entry.r !== "number") return undefined;
+  return typeof entry.w === "number" ? `${entry.r}/${entry.w}` : `${entry.r}`;
 }
 
 function formatOvers(entry?: RawScoreEntry) {
-  if (!entry || typeof entry.o !== "number") {
-    return undefined;
-  }
-
+  if (!entry || typeof entry.o !== "number") return undefined;
   return `${entry.o}`;
 }
 
 function inferStatus(match: RawCricketMatch): MatchStatus {
   const status = match.status?.toLowerCase() ?? "";
-
-  if (match.matchEnded || status.includes("result") || status.includes("won")) {
-    return "completed";
-  }
-
-  if (match.matchStarted || status.includes("live") || status.includes("inning")) {
-    return "live";
-  }
-
+  if (match.matchEnded || status.includes("result") || status.includes("won")) return "completed";
+  if (match.matchStarted || status.includes("live") || status.includes("inning")) return "live";
   return "upcoming";
 }
 
 function shortName(name: string) {
-  if (name.toLowerCase() === "pakistan") {
-    return "PAK";
-  }
-
+  if (name.toLowerCase() === "pakistan") return "PAK";
   const words = name.split(/\s+/).filter(Boolean);
-
-  if (words.length === 1) {
-    return words[0].slice(0, 3).toUpperCase();
-  }
-
+  if (words.length === 1) return words[0].slice(0, 3).toUpperCase();
   return words
     .slice(0, 3)
-    .map((word) => word[0])
+    .map((w) => w[0])
     .join("")
     .toUpperCase();
 }
@@ -74,19 +67,16 @@ function mapScoreToTeams(teams: string[], scoreEntries: RawScoreEntry[] = []) {
   const teamScores = new Map<string, RawScoreEntry>();
 
   for (const team of teams) {
-    const matchedEntry = scoreEntries.find((entry) => {
-      const inning = entry.inning ?? "";
+    const matched = scoreEntries.find((e) => {
+      const inning = e.inning ?? "";
       return cleanLabel(inning).includes(cleanLabel(team));
     });
-
-    if (matchedEntry) {
-      teamScores.set(team, matchedEntry);
-    }
+    if (matched) teamScores.set(team, matched);
   }
 
-  for (let index = 0; index < teams.length; index += 1) {
-    if (!teamScores.has(teams[index]) && scoreEntries[index]) {
-      teamScores.set(teams[index], scoreEntries[index]);
+  for (let i = 0; i < teams.length; i++) {
+    if (!teamScores.has(teams[i]) && scoreEntries[i]) {
+      teamScores.set(teams[i], scoreEntries[i]);
     }
   }
 
@@ -105,51 +95,52 @@ function mapScoreToTeams(teams: string[], scoreEntries: RawScoreEntry[] = []) {
 function extractTeams(match: RawCricketMatch) {
   if (match.teamInfo?.length) {
     return match.teamInfo
-      .map((team) => team.name)
-      .filter((name): name is string => Boolean(name));
+      .map((t) => t.name)
+      .filter((n): n is string => Boolean(n));
   }
-
   return match.teams ?? [];
 }
 
 function isPakistanMatch(match: RawCricketMatch) {
-  const teams = [
+  const candidates = [
     ...(match.teams ?? []),
-    ...(match.teamInfo?.flatMap((team) => [team.name, team.shortname].filter(Boolean)) ?? []),
+    ...(match.teamInfo?.flatMap((t) => [t.name, t.shortname].filter(Boolean)) ?? []),
     match.name,
-  ].filter((value): value is string => Boolean(value));
-
-  return teams.some((value) => PAKISTAN_PATTERN.test(value));
+  ].filter((v): v is string => Boolean(v));
+  return candidates.some((v) => PAKISTAN_PATTERN.test(v));
 }
 
-function statusText(match: RawCricketMatch, status: MatchStatus) {
-  if (match.status) {
-    return match.status;
-  }
-
-  if (status === "live") {
-    return "Live";
-  }
-
-  if (status === "completed") {
-    return "Completed";
-  }
-
+function deriveStatusText(match: RawCricketMatch, status: MatchStatus) {
+  if (match.status) return match.status;
+  if (status === "live") return "Live";
+  if (status === "completed") return "Completed";
   return "Upcoming";
 }
 
-function normalizeMatch(match: RawCricketMatch): Match {
+function sortMatches(matches: Match[]) {
+  const order: Record<MatchStatus, number> = { live: 0, upcoming: 1, completed: 2 };
+  return [...matches].sort((a, b) => {
+    const byStatus = order[a.status] - order[b.status];
+    if (byStatus !== 0) return byStatus;
+    return new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime();
+  });
+}
+
+/* ─── Match normalization ────────────────────────────────────────── */
+
+export function normalizeMatch(match: RawCricketMatch): Match {
   const teams = extractTeams(match);
   const status = inferStatus(match);
 
   return {
-    id: match.id ?? `${match.name ?? "pakistan-match"}-${match.dateTimeGMT ?? match.date ?? "now"}`,
+    id: match.id ?? `${match.name ?? "pak-match"}-${match.dateTimeGMT ?? match.date ?? "now"}`,
     name: match.name ?? teams.join(" vs "),
     series: match.seriesName,
+    matchType: match.matchType,
     venue: match.venue,
     date: match.dateTimeGMT ?? match.date,
     status,
-    statusText: statusText(match, status),
+    statusText: deriveStatusText(match, status),
     teams: mapScoreToTeams(teams, match.score),
     toss:
       match.tossWinner && match.tossChoice
@@ -159,30 +150,62 @@ function normalizeMatch(match: RawCricketMatch): Match {
   };
 }
 
-function sortMatches(matches: Match[]) {
-  const order: Record<MatchStatus, number> = {
-    live: 0,
-    upcoming: 1,
-    completed: 2,
-  };
-
-  return [...matches].sort((left, right) => {
-    const byStatus = order[left.status] - order[right.status];
-
-    if (byStatus !== 0) {
-      return byStatus;
-    }
-
-    return new Date(right.date ?? 0).getTime() - new Date(left.date ?? 0).getTime();
-  });
+export function normalizePakistanMatches(payload: ApiResponseShape): Match[] {
+  const raw = payload.data ?? payload.matches ?? [];
+  return sortMatches(raw.filter(isPakistanMatch).map(normalizeMatch));
 }
 
-export function normalizePakistanMatches(payload: ApiResponseShape): Match[] {
-  const rawMatches = payload.data ?? payload.matches ?? [];
+/* ─── Scorecard normalization ────────────────────────────────────── */
 
-  return sortMatches(
-    rawMatches
-      .filter(isPakistanMatch)
-      .map(normalizeMatch)
-  );
+export function normalizeInnings(raw: RawInnings): InningsScore {
+  const batting: BatsmanScore[] = (raw.battingCard ?? []).map((b) => ({
+    name: extractPlayerName(b.batsman),
+    runs: b.r ?? 0,
+    balls: b.b ?? 0,
+    fours: b["4s"] ?? 0,
+    sixes: b["6s"] ?? 0,
+    strikeRate: b.sr != null ? Number(b.sr).toFixed(1) : "0.0",
+    dismissal: b.out ?? "not out",
+  }));
+
+  const bowling: BowlerFigure[] = (raw.bowlingCard ?? []).map((b) => ({
+    name: extractPlayerName(b.bowler),
+    overs: b.o != null ? String(b.o) : "0",
+    maidens: b.m ?? 0,
+    runs: b.r ?? 0,
+    wickets: b.w ?? 0,
+    economy: b.eco != null ? Number(b.eco).toFixed(1) : "0.0",
+    wides: b.wd ?? 0,
+    noBalls: b.nb ?? 0,
+  }));
+
+  const extras: ExtrasBreakdown = {
+    total: raw.extras?.r ?? 0,
+    byes: raw.extras?.b ?? 0,
+    legByes: raw.extras?.lb ?? 0,
+    wides: raw.extras?.wd ?? 0,
+    noBalls: raw.extras?.nb ?? 0,
+    penalty: raw.extras?.p ?? 0,
+  };
+
+  return {
+    name: raw.inning ?? "Innings",
+    batting,
+    bowling,
+    extras,
+    total: {
+      runs: raw.total?.r ?? 0,
+      wickets: raw.total?.w ?? 0,
+      overs: raw.total?.o != null ? String(raw.total.o) : "0",
+    },
+  };
+}
+
+export function normalizeMatchDetail(raw: RawMatchDetailData): MatchDetail {
+  return {
+    ...normalizeMatch(raw as RawCricketMatch),
+    innings: (raw.scorecard ?? []).map(normalizeInnings),
+    umpires: raw.umpires,
+    referee: raw.referee,
+  };
 }

@@ -1,4 +1,5 @@
 import { Calendar, Clock3, MapPin, Trophy } from "lucide-react";
+import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import type { Match, MatchStatus, TeamScore } from "@/lib/types";
@@ -156,11 +157,16 @@ export function MatchCard({ match, index }: MatchCardProps) {
   const team1IsPak = /\bpakistan\b|\bpak\b/i.test(match.teams[1]?.name ?? "");
 
   return (
+    <Link
+      href={`/match/${encodeURIComponent(match.id)}`}
+      prefetch={false}
+      className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+    >
     <article
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-300",
         "opacity-0 animate-fade-up",
-        "hover:-translate-y-1",
+        "hover:-translate-y-1 cursor-pointer",
         isLive
           ? [
               "border-green-500/20 bg-card",
@@ -263,5 +269,6 @@ export function MatchCard({ match, index }: MatchCardProps) {
         )}
       </div>
     </article>
+    </Link>
   );
 }
