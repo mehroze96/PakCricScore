@@ -209,9 +209,6 @@ export function UpcomingSection({
     }
   }, [hasInitialPayload, load]);
 
-  // Don't render the section at all if there's no data and no loading
-  if (!loading && !error && matches.length === 0) return null;
-
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between gap-4">
@@ -246,6 +243,10 @@ export function UpcomingSection({
           {Array.from({ length: 3 }).map((_, i) => (
             <UpcomingCardSkeleton key={i} />
           ))}
+        </div>
+      ) : matches.length === 0 ? (
+        <div className="rounded-2xl border border-border/60 bg-card px-5 py-8 text-sm text-muted-foreground dark:border-white/[0.06]">
+          No upcoming Pakistan matches in the next few days
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">

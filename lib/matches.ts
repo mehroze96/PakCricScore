@@ -45,11 +45,45 @@ function formatOvers(entry?: RawScoreEntry) {
   return `${entry.o}`;
 }
 
-function inferStatus(match: RawCricketMatch): MatchStatus {
+export function getMatchPhase(match: RawCricketMatch): MatchStatus | "unknown" {
+  if (match.matchStarted === false) return "upcoming";
+  if (match.matchStarted === true && match.matchEnded !== true) return "live";
+  if (match.matchEnded === true) return "completed";
+
   const status = match.status?.toLowerCase() ?? "";
-  if (match.matchEnded || status.includes("result") || status.includes("won")) return "completed";
-  if (match.matchStarted || status.includes("live") || status.includes("inning")) return "live";
-  return "upcoming";
+  const state = match.state?.toLowerCase() ?? "";
+
+  if (
+    status.includes("not started") ||
+    status.includes("upcoming") ||
+    status.includes("scheduled") ||
+    state.includes("upcoming")
+  ) {
+    return "upcoming";
+  }
+
+  if (
+    status.includes("result") ||
+    status.includes("completed") ||
+    status.includes("won")
+  ) {
+    return "completed";
+  }
+
+  if (
+    status.includes("live") ||
+    status.includes("innings") ||
+    status.includes("inning")
+  ) {
+    return "live";
+  }
+
+  return "unknown";
+}
+
+function inferStatus(match: RawCricketMatch): MatchStatus {
+  const phase = getMatchPhase(match);
+  return phase === "unknown" ? "upcoming" : phase;
 }
 
 function shortName(name: string) {
@@ -101,13 +135,25 @@ function extractTeams(match: RawCricketMatch) {
   return match.teams ?? [];
 }
 
-function isPakistanMatch(match: RawCricketMatch) {
-  const candidates = [
+export function isPakistanMatch(match: RawCricketMatch) {
+  const teams = [
     ...(match.teams ?? []),
-    ...(match.teamInfo?.flatMap((t) => [t.name, t.shortname].filter(Boolean)) ?? []),
-    match.name,
-  ].filter((v): v is string => Boolean(v));
-  return candidates.some((v) => PAKISTAN_PATTERN.test(v));
+    ...(match.teamInfo?.flatMap((team) => [team.name, team.shortname].filter(Boolean)) ?? []),
+  ].filter((team): team is string => Boolean(team));
+
+  if (teams.some((team) => {
+    const normalized = team.toLowerCase().trim();
+    return normalized.includes("pakistan") || normalized === "pak";
+  })) {
+    return true;
+  }
+
+  return PAKISTAN_PATTERN.test(match.name ?? "");
+}
+
+export function filterPakistanMatches(payload: ApiResponseShape) {
+  const raw = payload.data ?? payload.matches ?? [];
+  return raw.filter(isPakistanMatch);
 }
 
 function deriveStatusText(match: RawCricketMatch, status: MatchStatus) {
@@ -151,8 +197,7 @@ export function normalizeMatch(match: RawCricketMatch): Match {
 }
 
 export function normalizePakistanMatches(payload: ApiResponseShape): Match[] {
-  const raw = payload.data ?? payload.matches ?? [];
-  return sortMatches(raw.filter(isPakistanMatch).map(normalizeMatch));
+  return sortMatches(filterPakistanMatches(payload).map(normalizeMatch));
 }
 
 /* ─── Scorecard normalization ────────────────────────────────────── */

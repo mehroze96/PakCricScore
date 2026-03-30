@@ -14,6 +14,7 @@ export interface RawCricketMatch {
   name?: string;
   matchType?: string;
   status?: string;
+  state?: string;
   venue?: string;
   date?: string;
   dateTimeGMT?: string;

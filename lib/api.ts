@@ -2,6 +2,8 @@ import { unstable_cache } from "next/cache";
 import { NextResponse } from "next/server";
 
 import {
+  filterPakistanMatches,
+  getMatchPhase,
   normalizeInnings,
   normalizeMatch,
   normalizePakistanMatches,
@@ -153,14 +155,20 @@ function getMatchCacheWindow(status: MatchStatus): CacheWindow {
   return CACHE_WINDOWS.live;
 }
 
-const getLiveMatchesCached = unstable_cache(
-  async (): Promise<MatchesPayload> => {
-    const payload = await fetchCricketJson<ApiResponseShape>(
+const getCurrentMatchesFeedCached = unstable_cache(
+  async () =>
+    fetchCricketJson<ApiResponseShape>(
       "/currentMatches",
       { offset: "0" },
       CACHE_WINDOWS.live
-    );
+    ),
+  ["cricket-current-matches-feed"],
+  { revalidate: CACHE_WINDOWS.live }
+);
 
+const getLiveMatchesCached = unstable_cache(
+  async (): Promise<MatchesPayload> => {
+    const payload = await getCurrentMatchesFeedCached();
     return {
       matches: normalizePakistanMatches(payload),
       fetchedAt: new Date().toISOString(),
@@ -172,19 +180,20 @@ const getLiveMatchesCached = unstable_cache(
 
 const getUpcomingMatchesCached = unstable_cache(
   async (): Promise<MatchesPayload> => {
-    const payload = await fetchCricketJson<ApiResponseShape>(
-      "/matches",
-      { offset: "0" },
-      CACHE_WINDOWS.upcoming
+    const payload = await getCurrentMatchesFeedCached();
+    const pakistanMatches = filterPakistanMatches(payload);
+    console.log("Pakistan Matches:", pakistanMatches);
+    const upcomingPakistanMatches = pakistanMatches.filter(
+      (match) => getMatchPhase(match) === "upcoming"
     );
 
     return {
-      matches: normalizePakistanMatches(payload).filter((match) => match.status === "upcoming"),
+      matches: normalizePakistanMatches({ data: upcomingPakistanMatches }),
       fetchedAt: new Date().toISOString(),
     };
   },
   ["cricket-upcoming-matches"],
-  { revalidate: CACHE_WINDOWS.upcoming }
+  { revalidate: CACHE_WINDOWS.live }
 );
 
 const getMatchByIdCached = unstable_cache(
