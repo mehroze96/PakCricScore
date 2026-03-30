@@ -40,6 +40,28 @@ export interface ApiResponseShape {
   matches?: RawCricketMatch[];
 }
 
+export interface RawSeriesSummary {
+  id?: string;
+  name?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface RawSeriesListResponse {
+  status?: string;
+  data?: RawSeriesSummary[];
+}
+
+export interface RawSeriesInfoData {
+  matchList?: RawCricketMatch[];
+  matches?: RawCricketMatch[];
+}
+
+export interface RawSeriesInfoResponse {
+  status?: string;
+  data?: RawSeriesInfoData;
+}
+
 /* ─── Raw API types — scorecard ──────────────────────────────────── */
 
 /** CricAPI returns player refs as either a plain string or an object. */

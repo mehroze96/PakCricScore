@@ -4,9 +4,11 @@ import { NextResponse } from "next/server";
 import {
   filterPakistanMatches,
   getMatchPhase,
+  isPslMatch,
   normalizeInnings,
   normalizeMatch,
   normalizePakistanMatches,
+  sortNormalizedMatches,
 } from "@/lib/matches";
 import type {
   ApiResponseShape,
@@ -15,11 +17,14 @@ import type {
   MatchStatus,
   RawMatchInfoResponse,
   RawMatchDetailData,
+  RawSeriesInfoResponse,
+  RawSeriesListResponse,
   RawScorecardResponse,
 } from "@/lib/types";
 
 const DEFAULT_BASE_URL = "https://api.cricapi.com/v1";
 const STALE_WHILE_REVALIDATE_SECONDS = 120;
+const PSL_2026_NAME = "Pakistan Super League 2026";
 
 // These TTLs balance freshness with the CricketData free-tier request budget.
 export const CACHE_WINDOWS = {
@@ -160,6 +165,18 @@ function normalizeScorecardInnings(matchData?: RawMatchDetailData | null) {
   return (matchData?.scorecard ?? []).map(normalizeInnings);
 }
 
+function extractSeriesInfoMatches(payload: RawSeriesInfoResponse) {
+  return payload.data?.matchList ?? payload.data?.matches ?? [];
+}
+
+function dedupeMatches(matches: Match[]) {
+  return sortNormalizedMatches(
+    Array.from(
+      new Map(matches.map((match) => [match.id, match])).values()
+    )
+  );
+}
+
 const getCurrentMatchesFeedCached = unstable_cache(
   async () =>
     fetchCricketJson<ApiResponseShape>(
@@ -199,6 +216,28 @@ const getUpcomingMatchesCached = unstable_cache(
   },
   ["cricket-upcoming-matches"],
   { revalidate: CACHE_WINDOWS.live }
+);
+
+const getSeriesListCached = unstable_cache(
+  async () =>
+    fetchCricketJson<RawSeriesListResponse>(
+      "/series",
+      { offset: "0" },
+      CACHE_WINDOWS.upcoming
+    ),
+  ["cricket-series-list"],
+  { revalidate: CACHE_WINDOWS.upcoming }
+);
+
+const getSeriesInfoCached = unstable_cache(
+  async (id: string) =>
+    fetchCricketJson<RawSeriesInfoResponse>(
+      "/series_info",
+      { id, offset: "0" },
+      CACHE_WINDOWS.upcoming
+    ),
+  ["cricket-series-info"],
+  { revalidate: CACHE_WINDOWS.upcoming }
 );
 
 const getMatchByIdCached = unstable_cache(
@@ -259,7 +298,29 @@ export async function getCurrentPakistanMatches() {
 }
 
 export async function getUpcomingPakistanMatches() {
-  return withLastKnownGood("upcoming-matches", getUpcomingMatchesCached);
+  return withLastKnownGood("upcoming-matches", async () => {
+    const baseUpcoming = await getUpcomingMatchesCached();
+    const seriesList = await getSeriesListCached();
+    const pslSeries = (seriesList.data ?? []).find(
+      (series) => series.name?.trim().toLowerCase() === PSL_2026_NAME.toLowerCase()
+    );
+
+    if (!pslSeries?.id) {
+      console.warn(`[cricket-api] Could not find series id for ${PSL_2026_NAME}.`);
+      return baseUpcoming;
+    }
+
+    const pslSeriesInfo = await getSeriesInfoCached(pslSeries.id);
+    const pslUpcomingMatches = extractSeriesInfoMatches(pslSeriesInfo)
+      .filter((match) => getMatchPhase(match) === "upcoming")
+      .filter(isPslMatch)
+      .map(normalizeMatch);
+
+    return {
+      ...baseUpcoming,
+      matches: dedupeMatches([...baseUpcoming.matches, ...pslUpcomingMatches]),
+    };
+  });
 }
 
 export async function getPakistanMatchById(id: string) {

@@ -156,9 +156,20 @@ export function isPakistanMatch(match: RawCricketMatch) {
   );
 }
 
+export function isPslMatch(match: RawCricketMatch) {
+  return (
+    PSL_PATTERN.test(match.seriesName ?? "") ||
+    PSL_PATTERN.test(match.name ?? "")
+  );
+}
+
 export function filterPakistanMatches(payload: ApiResponseShape) {
   const raw = payload.data ?? payload.matches ?? [];
   return raw.filter(isPakistanMatch);
+}
+
+export function sortNormalizedMatches(matches: Match[]) {
+  return sortMatches(matches);
 }
 
 function deriveStatusText(match: RawCricketMatch, status: MatchStatus) {
