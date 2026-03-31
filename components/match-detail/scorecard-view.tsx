@@ -26,7 +26,7 @@ function BattingTable({
 
   return (
     <div className="overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
-      <table className="w-full min-w-[560px] text-sm">
+      <table className="w-full min-w-[520px] text-[13px] sm:min-w-[560px] sm:text-sm">
         <thead>
           <tr className="border-b border-border/50 dark:border-white/[0.07]">
             <th className="py-2 pr-4 text-left text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground/60 w-[28%]">
@@ -135,7 +135,7 @@ function BattingTable({
 function BowlingTable({ bowling }: { bowling: BowlerFigure[] }) {
   return (
     <div className="overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
-      <table className="w-full min-w-[400px] text-sm">
+      <table className="w-full min-w-[360px] text-[13px] sm:min-w-[400px] sm:text-sm">
         <thead>
           <tr className="border-b border-border/50 dark:border-white/[0.07]">
             <th className="py-2 pr-4 text-left text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground/60 w-[40%]">
@@ -204,21 +204,21 @@ function InningsSection({ innings }: { innings: InningsScore }) {
   return (
     <div className="rounded-2xl border border-border/60 bg-card dark:border-white/[0.06]">
       {/* Innings header */}
-      <div className="flex items-center justify-between gap-3 border-b border-border/50 px-5 py-4 dark:border-white/[0.06]">
-        <h3 className="font-bold text-foreground">{innings.name}</h3>
-        <div className="text-right">
-          <span className="text-xl font-black tabular-nums text-foreground">
+      <div className="flex items-start justify-between gap-3 border-b border-border/50 px-4 py-3.5 dark:border-white/[0.06] sm:px-5 sm:py-4">
+        <h3 className="min-w-0 pr-2 text-sm font-bold text-foreground sm:text-base">{innings.name}</h3>
+        <div className="shrink-0 text-right">
+          <span className="text-lg font-black tabular-nums text-foreground sm:text-xl">
             {innings.total.runs}/{innings.total.wickets}
           </span>
           {innings.total.overs !== "0" && (
-            <span className="ml-1.5 text-xs text-muted-foreground">
+            <span className="ml-1 text-[11px] text-muted-foreground sm:ml-1.5 sm:text-xs">
               ({innings.total.overs} ov)
             </span>
           )}
         </div>
       </div>
 
-      <div className="p-5 space-y-6">
+      <div className="space-y-5 p-4 sm:space-y-6 sm:p-5">
         {/* Batting */}
         <div>
           <p className="mb-3 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
@@ -257,7 +257,7 @@ function InningsSection({ innings }: { innings: InningsScore }) {
 /* ─── Empty state ────────────────────────────────────────────────── */
 function ScorecardEmpty() {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-border/60 bg-card px-6 py-14 text-center dark:border-white/[0.06]">
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-border/60 bg-card px-5 py-12 text-center dark:border-white/[0.06] sm:px-6 sm:py-14">
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted/60 dark:bg-white/[0.04]">
         <ClipboardList className="h-6 w-6 text-muted-foreground/40" />
       </div>
@@ -276,7 +276,7 @@ export function ScorecardView({ innings }: { innings: InningsScore[] }) {
   if (innings.length === 0) return <ScorecardEmpty />;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {innings.map((inning, i) => (
         <InningsSection key={i} innings={inning} />
       ))}

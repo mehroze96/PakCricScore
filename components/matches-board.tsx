@@ -244,27 +244,27 @@ export function MatchesBoard({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       {/* Page heading */}
-      <div className="flex flex-col gap-1">
-        <h2 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">
+      <div className="flex flex-col gap-1 px-0.5">
+        <h2 className="text-[1.65rem] font-black tracking-tight text-foreground sm:text-3xl">
           Pakistan Fixtures
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground sm:text-sm">
           {fetchedAt ? `Updated at ${fetchedAt}` : "Loading match data…"}
         </p>
       </div>
 
       {/* Tab bar + refresh */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Tabs — horizontally scrollable on mobile */}
-        <div className="scrollbar-none flex items-center gap-1 overflow-x-auto rounded-xl border border-border/60 bg-muted/40 p-1 dark:border-white/[0.06] dark:bg-white/[0.03]">
+        <div className="scrollbar-none -mx-1 flex items-center gap-1 overflow-x-auto px-1 rounded-xl border border-border/60 bg-muted/40 p-1 dark:border-white/[0.06] dark:bg-white/[0.03]">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition-all duration-150 sm:py-1.5",
+                "flex min-h-10 shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition-all duration-150 sm:min-h-0 sm:py-1.5",
                 activeTab === tab.id
                   ? "bg-background text-foreground shadow-sm dark:bg-white/[0.08] dark:text-white"
                   : "text-muted-foreground hover:text-foreground"
@@ -290,7 +290,7 @@ export function MatchesBoard({
         </div>
 
         {/* Refresh controls */}
-        <div className="flex items-center gap-2 self-end sm:self-auto">
+        <div className="flex items-center justify-between gap-2 sm:justify-end sm:self-auto">
           {!loading && (
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground/60">
               <CountdownRing seconds={countdown} total={REFRESH_INTERVAL} />
@@ -302,7 +302,7 @@ export function MatchesBoard({
             size="sm"
             onClick={() => void loadMatches(true)}
             disabled={refreshing || loading}
-            className="h-9 gap-1.5 border-border/70 text-xs dark:border-white/[0.08] dark:bg-white/[0.04] dark:hover:bg-white/[0.07]"
+            className="h-10 gap-1.5 border-border/70 px-3 text-xs dark:border-white/[0.08] dark:bg-white/[0.04] dark:hover:bg-white/[0.07] sm:h-9"
           >
             <RefreshCcw className={cn("h-3.5 w-3.5", refreshing && "animate-spin")} />
             Refresh
@@ -312,7 +312,7 @@ export function MatchesBoard({
 
       {/* Content */}
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <MatchCardSkeleton key={i} />
           ))}
@@ -322,7 +322,7 @@ export function MatchesBoard({
       ) : filtered.length === 0 ? (
         <EmptyState activeTab={activeTab} />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((match, index) => (
             <MatchCard key={match.id} match={match} index={index} />
           ))}

@@ -56,8 +56,8 @@ function UpcomingFixtureCard({ match, index }: { match: Match; index: number }) 
     >
       <div
         className={cn(
-          "group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-sky-500/15 bg-card p-4 transition-all duration-300",
-          "opacity-0 animate-fade-up hover:-translate-y-1 hover:border-sky-500/30 hover:shadow-card-hover",
+          "group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-sky-500/15 bg-card p-3.5 transition-all duration-300 sm:p-4",
+          "opacity-0 animate-fade-up active:scale-[0.995] sm:hover:-translate-y-1 hover:border-sky-500/30 hover:shadow-card-hover",
           "dark:border-sky-500/10 dark:bg-card cursor-pointer"
         )}
         style={{ animationDelay: `${index * 60}ms`, animationFillMode: "forwards" }}
@@ -86,13 +86,13 @@ function UpcomingFixtureCard({ match, index }: { match: Match; index: number }) 
         </div>
 
         {/* Teams */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {team0 && (
             <div className="flex min-w-0 flex-1 items-center gap-1.5">
               <span className="text-base leading-none">{getFlag(team0.name)}</span>
               <div className="min-w-0">
                 <p className={cn(
-                  "truncate text-sm font-bold",
+                  "truncate text-[13px] font-bold sm:text-sm",
                   /\bpakistan\b|\bpak\b/i.test(team0.name) ? "text-green-400 dark:text-green-300" : "text-foreground"
                 )}>
                   {team0.name}
@@ -110,7 +110,7 @@ function UpcomingFixtureCard({ match, index }: { match: Match; index: number }) 
             <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5">
               <div className="min-w-0 text-right">
                 <p className={cn(
-                  "truncate text-sm font-bold",
+                  "truncate text-[13px] font-bold sm:text-sm",
                   /\bpakistan\b|\bpak\b/i.test(team1.name) ? "text-green-400 dark:text-green-300" : "text-foreground"
                 )}>
                   {team1.name}
@@ -125,15 +125,15 @@ function UpcomingFixtureCard({ match, index }: { match: Match; index: number }) 
         </div>
 
         {/* Meta */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border/40 pt-2.5 dark:border-white/[0.05]">
+        <div className="flex flex-col gap-1.5 border-t border-border/40 pt-2.5 text-[11px] dark:border-white/[0.05] sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-1">
           {formattedDate && (
-            <span className="flex items-center gap-1 text-[11px] text-muted-foreground/60">
+            <span className="flex items-center gap-1 text-muted-foreground/60">
               <Calendar className="h-3 w-3 shrink-0" />
               {formattedDate}
             </span>
           )}
           {match.venue && (
-            <span className="flex min-w-0 flex-1 items-center gap-1 truncate text-[11px] text-muted-foreground/60">
+            <span className="flex min-w-0 items-center gap-1 truncate text-muted-foreground/60 sm:flex-1">
               <MapPin className="h-3 w-3 shrink-0" />
               <span className="truncate">{match.venue}</span>
             </span>
@@ -211,7 +211,7 @@ export function UpcomingSection({
 
   return (
     <section className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-sky-500/70">
             Schedule
@@ -225,7 +225,7 @@ export function UpcomingSection({
           size="sm"
           onClick={() => void load()}
           disabled={loading}
-          className="h-8 gap-1.5 text-xs"
+          className="h-10 w-full gap-1.5 text-xs sm:h-8 sm:w-auto"
         >
           <RefreshCcw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
           Refresh
@@ -245,7 +245,7 @@ export function UpcomingSection({
           ))}
         </div>
       ) : matches.length === 0 ? (
-        <div className="rounded-2xl border border-border/60 bg-card px-5 py-8 text-sm text-muted-foreground dark:border-white/[0.06]">
+        <div className="rounded-2xl border border-border/60 bg-card px-4 py-7 text-sm text-muted-foreground dark:border-white/[0.06] sm:px-5 sm:py-8">
           No upcoming Pakistan matches in the next few days
         </div>
       ) : (

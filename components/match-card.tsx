@@ -166,7 +166,7 @@ export function MatchCard({ match, index }: MatchCardProps) {
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-300",
         "opacity-0 animate-fade-up",
-        "hover:-translate-y-1 cursor-pointer",
+        "cursor-pointer active:scale-[0.995] sm:hover:-translate-y-1",
         isLive
           ? [
               "border-green-500/20 bg-card",
@@ -201,14 +201,14 @@ export function MatchCard({ match, index }: MatchCardProps) {
       )}
 
       {/* Card header */}
-      <div className="flex items-start justify-between gap-3 px-4 pt-4 sm:px-5 sm:pt-5">
+      <div className="flex items-start justify-between gap-2 px-3.5 pt-3.5 sm:gap-3 sm:px-5 sm:pt-5">
         <div className="min-w-0 flex-1">
           {match.series && (
             <p className="truncate text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground/70">
               {match.series}
             </p>
           )}
-          <p className="mt-0.5 truncate text-xs font-semibold text-muted-foreground/60">
+          <p className="mt-0.5 truncate pr-1 text-[11px] font-semibold text-muted-foreground/60 sm:text-xs">
             {match.name}
           </p>
         </div>
@@ -218,7 +218,7 @@ export function MatchCard({ match, index }: MatchCardProps) {
       </div>
 
       {/* Score section — VS layout */}
-      <div className="flex items-center gap-2 px-4 py-5 sm:gap-3 sm:px-5 sm:py-6">
+      <div className="flex items-center gap-2 px-3.5 py-4 sm:gap-3 sm:px-5 sm:py-6">
         <TeamBlock
           team={match.teams[0]}
           align="left"
@@ -244,7 +244,7 @@ export function MatchCard({ match, index }: MatchCardProps) {
       {/* Toss / winner info */}
       {(match.winner || match.toss) && (
         <div className={cn(
-          "mx-4 mb-4 rounded-xl px-3.5 py-2.5 text-xs font-medium sm:mx-5",
+          "mx-3.5 mb-3.5 rounded-xl px-3 py-2.5 text-[11px] font-medium leading-5 sm:mx-5 sm:mb-4 sm:px-3.5 sm:text-xs",
           match.winner
             ? "bg-green-500/8 text-green-500 dark:bg-green-500/[0.08] dark:text-green-400 ring-1 ring-green-500/15"
             : "bg-muted/60 text-muted-foreground dark:bg-white/[0.04]"
@@ -254,15 +254,15 @@ export function MatchCard({ match, index }: MatchCardProps) {
       )}
 
       {/* Footer meta */}
-      <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border/50 px-4 py-3 dark:border-white/[0.05] sm:px-5">
+      <div className="mt-auto flex flex-col gap-1.5 border-t border-border/50 px-3.5 py-3 text-[11px] dark:border-white/[0.05] sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-1 sm:px-5">
         {match.venue && (
-          <span className="flex min-w-0 flex-1 items-center gap-1 truncate text-[11px] text-muted-foreground/60">
+          <span className="flex min-w-0 items-center gap-1 truncate text-muted-foreground/60 sm:flex-1">
             <MapPin className="h-3 w-3 shrink-0" />
             <span className="truncate">{match.venue}</span>
           </span>
         )}
         {formattedDate && (
-          <span className="flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground/60">
+          <span className="flex shrink-0 items-center gap-1 text-muted-foreground/60">
             <Calendar className="h-3 w-3" />
             {formattedDate}
           </span>

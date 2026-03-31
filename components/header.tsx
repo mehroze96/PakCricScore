@@ -22,11 +22,11 @@ export function Header() {
       } backdrop-blur-xl backdrop-saturate-150`}
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6 sm:py-4 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-3 sm:gap-4 sm:px-6 sm:py-4 lg:px-8">
         {/* Logo */}
-        <div className="flex items-center gap-3">
-          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-green-500/10 ring-1 ring-green-500/20 dark:bg-green-500/[0.08] dark:ring-green-500/15">
-            <span className="text-[18px] leading-none" role="img" aria-label="cricket bat">🏏</span>
+        <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+          <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-green-500/10 ring-1 ring-green-500/20 dark:bg-green-500/[0.08] dark:ring-green-500/15 sm:h-9 sm:w-9">
+            <span className="text-[17px] leading-none sm:text-[18px]" role="img" aria-label="cricket bat">🏏</span>
             {/* Live dot */}
             <span className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5 items-center justify-center">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-60" />
@@ -34,18 +34,18 @@ export function Header() {
             </span>
           </div>
 
-          <div>
-            <h1 className="text-[17px] font-black tracking-tight text-foreground">
+          <div className="min-w-0">
+            <h1 className="truncate text-base font-black tracking-tight text-foreground sm:text-[17px]">
               PakScore
             </h1>
-            <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-green-500/70">
+            <p className="truncate text-[8px] font-bold uppercase tracking-[0.22em] text-green-500/70 sm:text-[9px] sm:tracking-[0.3em]">
               Pakistan Cricket
             </p>
           </div>
         </div>
 
         {/* Right side */}
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {/* Pakistan flag tag */}
           <div className="hidden items-center gap-1.5 rounded-full border border-border/70 bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground dark:border-white/[0.07] dark:bg-white/[0.04] sm:flex">
             <span>🇵🇰</span>

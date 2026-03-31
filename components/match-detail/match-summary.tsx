@@ -76,22 +76,22 @@ function TeamColumn({
   return (
     <div className={cn("flex min-w-0 flex-1 flex-col gap-1", isRight && "items-end text-right")}>
       <div className={cn("flex items-center gap-2", isRight && "flex-row-reverse")}>
-        <span className="text-2xl leading-none sm:text-3xl">{flag}</span>
+        <span className="text-xl leading-none sm:text-3xl">{flag}</span>
         <span className={cn(
-          "text-xs font-black uppercase tracking-[0.2em]",
+          "text-[11px] font-black uppercase tracking-[0.16em] sm:text-xs sm:tracking-[0.2em]",
           isPak ? "text-green-500" : "text-muted-foreground"
         )}>
           {shortName ?? name.slice(0, 3).toUpperCase()}
         </span>
       </div>
       <p className={cn(
-        "truncate text-base font-bold tracking-tight sm:text-lg",
+        "truncate text-sm font-bold tracking-tight sm:text-lg",
         isPak ? "text-green-400 dark:text-green-300" : "text-foreground"
       )}>
         {name}
       </p>
       <p className={cn(
-        "text-3xl font-black tabular-nums tracking-tight sm:text-4xl",
+        "text-[1.75rem] font-black tabular-nums tracking-tight sm:text-4xl",
         score ? "text-foreground" : "text-muted-foreground/30"
       )}>
         {score ?? "—"}
@@ -135,7 +135,7 @@ export function MatchSummary({ match }: { match: Match }) {
 
       <div className="p-5 sm:p-6">
         {/* Header row */}
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             {match.series && (
               <p className="truncate text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground/70">
@@ -146,13 +146,13 @@ export function MatchSummary({ match }: { match: Match }) {
               {match.name}
             </p>
           </div>
-          <div className="shrink-0 pt-0.5">
+          <div className="shrink-0 self-start pt-0.5">
             <StatusBadge status={match.status} text={match.statusText} />
           </div>
         </div>
 
         {/* Score section */}
-        <div className="mt-6 flex items-center gap-3 sm:gap-5">
+        <div className="mt-5 flex items-center gap-2 sm:mt-6 sm:gap-5">
           {team0 && (
             <TeamColumn
               name={team0.name}
@@ -164,12 +164,12 @@ export function MatchSummary({ match }: { match: Match }) {
             />
           )}
 
-          <div className="flex shrink-0 flex-col items-center gap-1.5 self-center">
-            <div className="h-10 w-px bg-border/60 dark:bg-white/[0.07]" />
-            <span className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/40">
+          <div className="flex shrink-0 flex-col items-center gap-1 self-center px-0.5 sm:gap-1.5">
+            <div className="h-8 w-px bg-border/60 dark:bg-white/[0.07] sm:h-10" />
+            <span className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground/40 sm:text-[11px]">
               vs
             </span>
-            <div className="h-10 w-px bg-border/60 dark:bg-white/[0.07]" />
+            <div className="h-8 w-px bg-border/60 dark:bg-white/[0.07] sm:h-10" />
           </div>
 
           {team1 && (
@@ -187,7 +187,7 @@ export function MatchSummary({ match }: { match: Match }) {
         {/* Result / toss */}
         {(match.winner || match.toss) && (
           <div className={cn(
-            "mt-5 rounded-xl px-4 py-3 text-sm font-medium",
+            "mt-4 rounded-xl px-3.5 py-3 text-sm font-medium leading-6 sm:mt-5 sm:px-4",
             match.winner
               ? "bg-green-500/8 text-green-500 ring-1 ring-green-500/15 dark:bg-green-500/[0.08] dark:text-green-400"
               : "bg-muted/50 text-muted-foreground dark:bg-white/[0.04]"
@@ -197,7 +197,7 @@ export function MatchSummary({ match }: { match: Match }) {
         )}
 
         {/* Meta row */}
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-border/50 pt-4 dark:border-white/[0.06]">
+        <div className="mt-4 flex flex-col gap-2 border-t border-border/50 pt-4 dark:border-white/[0.06] sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-1.5">
           {formattedDate && (
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
               <Calendar className="h-3.5 w-3.5 shrink-0" />

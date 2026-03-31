@@ -167,16 +167,16 @@ export function MatchDetailPage({
     <div className="flex min-h-screen flex-col">
       <Header />
       <main
-        className="flex-1 py-6 sm:py-8"
+        className="flex-1 py-4 sm:py-8"
         style={{
           paddingLeft: "max(1rem, env(safe-area-inset-left))",
           paddingRight: "max(1rem, env(safe-area-inset-right))",
         }}
       >
-        <div className="mx-auto max-w-4xl space-y-5">
+        <div className="mx-auto max-w-4xl space-y-4 sm:space-y-5">
           <Link
             href="/"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
           >
             <ChevronLeft className="h-4 w-4" />
             Pakistan Fixtures
@@ -197,7 +197,7 @@ export function MatchDetailPage({
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    "flex-1 rounded-lg px-4 py-2 text-sm font-bold transition-all duration-150",
+                    "flex-1 rounded-lg px-3 py-2.5 text-sm font-bold transition-all duration-150 sm:px-4 sm:py-2",
                     activeTab === tab.id
                       ? "bg-background text-foreground shadow-sm dark:bg-white/[0.08] dark:text-white"
                       : "text-muted-foreground hover:text-foreground"

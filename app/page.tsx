@@ -29,13 +29,13 @@ export default async function HomePage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main
-        className="flex-1 py-8"
+        className="flex-1 py-5 sm:py-8"
         style={{
           paddingLeft: "max(1rem, env(safe-area-inset-left))",
           paddingRight: "max(1rem, env(safe-area-inset-right))",
         }}
       >
-        <div className="mx-auto max-w-7xl space-y-10">
+        <div className="mx-auto max-w-7xl space-y-8 sm:space-y-10">
           <MatchesBoard
             initialError={liveResult.error}
             initialFetchedAt={liveResult.payload?.fetchedAt ?? null}
