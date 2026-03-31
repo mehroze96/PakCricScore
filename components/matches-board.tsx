@@ -312,7 +312,7 @@ export function MatchesBoard({
 
       {/* Content */}
       {loading ? (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <MatchCardSkeleton key={i} />
           ))}
@@ -322,7 +322,7 @@ export function MatchesBoard({
       ) : filtered.length === 0 ? (
         <EmptyState activeTab={activeTab} />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((match, index) => (
             <MatchCard key={match.id} match={match} index={index} />
           ))}

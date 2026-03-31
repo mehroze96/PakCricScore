@@ -52,11 +52,11 @@ function UpcomingFixtureCard({ match, index }: { match: Match; index: number }) 
     <Link
       href={`/match/${encodeURIComponent(match.id)}`}
       prefetch={false}
-      className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="block w-full min-w-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
       <div
         className={cn(
-          "group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-sky-500/15 bg-card p-3.5 transition-all duration-300 sm:p-4",
+          "group relative flex w-full min-w-0 flex-col gap-3 overflow-hidden rounded-2xl border border-sky-500/15 bg-card p-3.5 transition-all duration-300 sm:p-4",
           "opacity-0 animate-fade-up active:scale-[0.995] sm:hover:-translate-y-1 hover:border-sky-500/30 hover:shadow-card-hover",
           "dark:border-sky-500/10 dark:bg-card cursor-pointer"
         )}
@@ -66,7 +66,7 @@ function UpcomingFixtureCard({ match, index }: { match: Match; index: number }) 
         <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-sky-500/40 to-transparent" />
 
         {/* Header */}
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1">
             {match.series && (
               <p className="truncate text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
@@ -79,7 +79,7 @@ function UpcomingFixtureCard({ match, index }: { match: Match; index: number }) 
               </p>
             )}
           </div>
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-sky-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-sky-400 ring-1 ring-sky-500/20">
+          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-sky-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-sky-400 ring-1 ring-sky-500/20 sm:shrink-0 sm:px-2.5 sm:tracking-[0.14em]">
             <Clock3 className="h-3 w-3" />
             Upcoming
           </span>
@@ -239,7 +239,7 @@ export function UpcomingSection({
       )}
 
       {loading ? (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <UpcomingCardSkeleton key={i} />
           ))}
@@ -249,7 +249,7 @@ export function UpcomingSection({
           No upcoming Pakistan matches in the next few days
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {matches.map((match, index) => (
             <UpcomingFixtureCard key={match.id} match={match} index={index} />
           ))}

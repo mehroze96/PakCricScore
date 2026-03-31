@@ -54,7 +54,7 @@ function formatDate(date?: string) {
 function StatusBadge({ status, text }: { status: MatchStatus; text: string }) {
   if (status === "live") {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/12 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-green-400 ring-1 ring-green-500/20 dark:bg-green-500/10">
+      <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-green-500/12 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-green-400 ring-1 ring-green-500/20 dark:bg-green-500/10 sm:px-2.5 sm:tracking-[0.14em]">
         <span className="relative flex h-1.5 w-1.5 shrink-0">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-500" />
@@ -66,7 +66,7 @@ function StatusBadge({ status, text }: { status: MatchStatus; text: string }) {
 
   if (status === "upcoming") {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-sky-400 ring-1 ring-sky-500/20">
+      <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-sky-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-sky-400 ring-1 ring-sky-500/20 sm:px-2.5 sm:tracking-[0.14em]">
         <Clock3 className="h-3 w-3 shrink-0" />
         Upcoming
       </span>
@@ -74,7 +74,7 @@ function StatusBadge({ status, text }: { status: MatchStatus; text: string }) {
   }
 
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400 ring-1 ring-slate-500/20 dark:bg-white/[0.05] dark:text-slate-300 dark:ring-white/10">
+    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-slate-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400 ring-1 ring-slate-500/20 dark:bg-white/[0.05] dark:text-slate-300 dark:ring-white/10 sm:px-2.5 sm:tracking-[0.14em]">
       <Trophy className="h-3 w-3 shrink-0" />
       {text.length > 16 ? "Finished" : text}
     </span>
@@ -160,11 +160,11 @@ export function MatchCard({ match, index }: MatchCardProps) {
     <Link
       href={`/match/${encodeURIComponent(match.id)}`}
       prefetch={false}
-      className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="block w-full min-w-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
     <article
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-300",
+        "group relative flex w-full min-w-0 flex-col overflow-hidden rounded-2xl border transition-all duration-300",
         "opacity-0 animate-fade-up",
         "cursor-pointer active:scale-[0.995] sm:hover:-translate-y-1",
         isLive
@@ -201,7 +201,7 @@ export function MatchCard({ match, index }: MatchCardProps) {
       )}
 
       {/* Card header */}
-      <div className="flex items-start justify-between gap-2 px-3.5 pt-3.5 sm:gap-3 sm:px-5 sm:pt-5">
+      <div className="flex flex-col items-start gap-2 px-3.5 pt-3.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3 sm:px-5 sm:pt-5">
         <div className="min-w-0 flex-1">
           {match.series && (
             <p className="truncate text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground/70">
@@ -212,13 +212,13 @@ export function MatchCard({ match, index }: MatchCardProps) {
             {match.name}
           </p>
         </div>
-        <div className="shrink-0 pt-0.5">
+        <div className="max-w-full pt-0.5 sm:shrink-0">
           <StatusBadge status={match.status} text={match.statusText} />
         </div>
       </div>
 
       {/* Score section — VS layout */}
-      <div className="flex items-center gap-2 px-3.5 py-4 sm:gap-3 sm:px-5 sm:py-6">
+      <div className="flex min-w-0 items-center gap-1.5 px-3.5 py-4 sm:gap-3 sm:px-5 sm:py-6">
         <TeamBlock
           team={match.teams[0]}
           align="left"
@@ -244,7 +244,7 @@ export function MatchCard({ match, index }: MatchCardProps) {
       {/* Toss / winner info */}
       {(match.winner || match.toss) && (
         <div className={cn(
-          "mx-3.5 mb-3.5 rounded-xl px-3 py-2.5 text-[11px] font-medium leading-5 sm:mx-5 sm:mb-4 sm:px-3.5 sm:text-xs",
+          "mx-3.5 mb-3.5 break-words rounded-xl px-3 py-2.5 text-[11px] font-medium leading-5 sm:mx-5 sm:mb-4 sm:px-3.5 sm:text-xs",
           match.winner
             ? "bg-green-500/8 text-green-500 dark:bg-green-500/[0.08] dark:text-green-400 ring-1 ring-green-500/15"
             : "bg-muted/60 text-muted-foreground dark:bg-white/[0.04]"
